@@ -1,0 +1,27 @@
+{
+  "name": "whatsapp-ai-gateway",
+  "version": "1.1.0",
+  "description": "Independent WhatsApp Gateway and AI Support Microservice",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "postinstall": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@hapi/boom": "^10.0.1",
+    "@prisma/client": "^5.22.0",
+    "@whiskeysockets/baileys": "^6.7.18",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
