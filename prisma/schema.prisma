@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id   String @id
+  data String @db.Text
+}
+
+enum SenderType {
+  USER
+  AI
+  ADMIN
+}
+
+enum ChatStatus {
+  BOT_HANDLED
+  HUMAN_REQUIRED
+  RESOLVED
+}
+
+model SupportChat {
+  id           String     @id @default(uuid())
+  phone_number String
+  message_body String     @db.Text
+  sender       SenderType
+  status       ChatStatus @default(BOT_HANDLED)
+  timestamp    DateTime   @default(now())
+
+  @@index([phone_number])
+  @@index([phone_number, timestamp])
+}
