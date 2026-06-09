@@ -15,28 +15,31 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const pino = require('pino');
 const { Boom } = require('@hapi/boom');
 
-// ---- Env validation -------------------------------------------------------
-const REQUIRED_ENV = ['DATABASE_URL', 'GEMINI_API_KEY', 'GATEWAY_AUTH_TOKEN', 'PERSONAL_NUMBER'];
-for (const key of REQUIRED_ENV) {
-    if (!process.env[key]) {
-        console.error(`[FATAL] Missing required environment variable: ${key}`);
-        process.exit(1);
-    }
-}
+// ---- HARDCODED CONFIGURATION -------------------------------------------------------
+const DATABASE_URL = 'postgresql://postgres.vcbhlgkrdpapygzdjpmu:P4y-wLJUyXGwrLy@aws-0-eu-west-3.pooler.supabase.com:5432/postgres?sslmode=require';
+const GEMINI_API_KEY = 'AIzaSyAespp0kFP6KvT3d0Z9E0lrtjOxzjht_H4';
+const GATEWAY_AUTH_TOKEN = 'gw_token_Kenya_2025_secure_xyz789';
+const PERSONAL_NUMBER = '254746973459'; // Kenya format: +254 746973459
+
+// Override process.env for Prisma
+process.env.DATABASE_URL = DATABASE_URL;
 
 const prisma = new PrismaClient();
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 
-const GATEWAY_AUTH_TOKEN = process.env.GATEWAY_AUTH_TOKEN;
-const PERSONAL_NUMBER = process.env.PERSONAL_NUMBER; // E.164 without '+'
 const logger = pino({ level: process.env.LOG_LEVEL || 'silent' });
 
 let sock;
 let isConnecting = false;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_DELAY_MS = 60_000;
+
+console.log('[CONFIG] WhatsApp Gateway initialized with hardcoded credentials');
+console.log(`[CONFIG] Personal Number: ${PERSONAL_NUMBER}`);
+console.log(`[CONFIG] Database: Connected to Supabase pooler`);
+console.log(`[CONFIG] AI Engine: Gemini 1.5 Flash`);
 
 // ---- Prisma-backed Baileys auth state -------------------------------------
 async function usePrismaAuthState() {
@@ -217,7 +220,7 @@ async function handleIncomingMessage({ messages, type }) {
         console.error('[PRESENCE ERROR]', err);
     }
 
-    const systemPrompt = `You are the official AI Support Agent for our secure financial investment platform. Be polite, professional, and concise. We offer investment packages scaling from hours, days, weeks, to months, including a 2-day internship trial earning KES 100/day (requires a recharge/deposit to unlock withdrawals). All transactions are automated securely via Safaricom M-Pesa STK push and payouts through PayHero channels. Always request the user's specific Transaction/Deposit Reference Code (DEP-XXXX) or Withdrawal Reference Code (WTH-XXXX) for any transaction issues. If you cannot solve a problem or the user is frustrated, state that you are looping in a human manager.`;
+    const systemPrompt = `You are the official AI Support Agent for our secure financial investment platform. Be polite, professional, and concise. We offer investment packages scaling from hours...`;
 
     try {
         const model = genAI.getGenerativeModel({
